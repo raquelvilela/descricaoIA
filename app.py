@@ -3,37 +3,22 @@ from transformers import pipeline
 
 app = Flask(__name__)
 
-# Função para carregar descrições de arquivos .txt
-def load_descriptions(directory):
-    descriptions = []
-    import os
-    for filename in os.listdir(directory):
-        if filename.endswith(".txt"):
-            with open(os.path.join(directory, filename), 'r', encoding='utf-8') as file:
-                descriptions.append(file.read())
-    return descriptions
-
-# Carregar descrições
-directory = 'descriptions'  # Diretório onde os arquivos .txt estão localizados
-descriptions = load_descriptions(directory)
-
-# Carregar o modelo de IA
-model_name = "gpt-3"
+# Use a model that is publicly available
+model_name = "gpt2"
 generator = pipeline('text-generation', model=model_name)
 
-def generate_description(title):
-    prompt = f"Descreva o produto com o título: {title}. Baseado nas seguintes descrições: {descriptions}"
-    generated_texts = generator(prompt, max_length=100, num_return_sequences=1)
-    return generated_texts[0]['generated_text']
 
-@app.route('/descricao', methods=['POST'])
-def descricao():
+@app.route('/generate-description', methods=['POST'])
+def generate_description():
     data = request.json
-    title = data.get('title', '')
-    if not title:
-        return jsonify({"error": "Title is required"}), 400
-    description = generate_description(title)
-    return jsonify({"title": title, "description": description})
+    product_title = data['title']
+
+    # Gerar a descrição do produto
+    description = generator(product_title, max_length=50, num_return_sequences=1)[0]['generated_text']
+
+    return jsonify({'description': description})
+
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(debug=True)
+
