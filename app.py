@@ -3,8 +3,8 @@ from transformers import pipeline
 
 app = Flask(__name__)
 
-# Use a model that is publicly available
-model_name = "gpt2"
+# Use um modelo público disponível
+model_name = "distilgpt2"
 generator = pipeline('text-generation', model=model_name)
 
 
@@ -21,4 +21,3 @@ def generate_description():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
